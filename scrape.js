@@ -1,6 +1,6 @@
 (function () {
     
-    function Post (new_post_object) {
+function Post (new_post_object) {
     var target_obj = new_post_object;
     sys.puts('saving post: ' + target_obj.title_text);
 
