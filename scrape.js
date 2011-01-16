@@ -1,50 +1,64 @@
+var Post = function (new_post_object) {
+    var target_obj = new_post_object;
+    sys.puts('saving post: ' + target_obj.title_text);
 
-var mongoose = require('mongoose').Mongoose;
+    getCollection( function (post_collection) {
 
-mongoose.model('Post', {
+        var q = { hn_id: target_obj.hn_id }
 
-    properties: ['rank','title_text','title_domain','title_href','score','hn_id','num_comments','age','user'],
+        var q_callback = function (error, result) {
+            if ( !error ) {
+                var changed = false;
 
-    cast: {
-        rank: Number,
-        title_text: String,
-        title_domain: String,
-        title_href: String,
-        score: Number,
-        hn_id: Number,
-        num_comments: Number,
-        age: Number,
-        user: String
-    },
-
-    methods: {
-        save: function(fn){
-            this.updated_at = new Date();
-            this.__super__(fn);
-        },
-        populate: function (new_obj) {
-            this.rank = new_obj.rank;
-            this.title_text = new_obj.title_text;
-            this.title_domain = new_obj.title_domain;
-            this.title_href = new_obj.title_href;
-            this.score = new_obj.score;
-            this.hn_id = new_obj.hn_id;
-            this.num_comments = new_obj.num_comments;
-            this.age = new_obj.age;
-            this.user = new_obj.user;
+                if (result) {
+                    if(target_obj.rank > result.rank) {
+                        result.rank = target_obj.rank;
+                        changed = true;
+                        result.rank_max_time = new Date();
+                    }
+                    if(target_obj.num_comments > result.num_comments) {
+                        result.num_comments = target_obj.num_comments;
+                        changed = true;
+                        result.comments_max_time = new Date();
+                    }
+                    if(target_obj.score > result.score) {
+                        result.score = target_obj.score;
+                        changed = true;
+                        result.score_max_time = new Date();
+                    }
+                    target_obj = result;
+                } else {
+                    target_obj.added_at = new Date(); // this plus age to get actual age
+                    target_obj.rank_max_time = new Date();
+                    target_obj.comments_max_time = new Date();
+                    target_obj.score_max_time = new Date();
+                }
+                
+                target_obj.updated_at = new Date(); // acts as a 'last seen on front page' tracker
+                
+                post_collection.insert(target_obj, function () {
+                    if(result) {
+                        if(changed) {
+                            sys.puts('updated: ' + target_obj.title_text);
+                        } else {
+                            sys.puts('same: ' + target_obj.title_text);
+                        }
+                    } else {
+                        sys.puts('inserted: ' + target_obj.title_text);
+                    }
+                    updatePostCount();
+                });
+            }
         }
-    }
+        
+        post_collection.findOne(q, q_callback);
+    });
+    return this;
+}
 
-});
 
-var db = mongoose.connect('mongodb://localhost/db');
-var Post = db.model('Post');
 
 var Scraper = function () {
-
-    var request = require('request'),
-        jsdom = require('jsdom'),
-        sys = require('sys');
 
     var window;
     var data = [];
@@ -68,7 +82,10 @@ var Scraper = function () {
                         var user = subtext.children('a[href^="user?id="]').text();
                         var hn_id = parseInt(subtext.children('a[href^="item?id="]').attr('href').replace('item?id=',''));
                         var num_comments = parseInt(subtext.children('a[href^="item?id="]').text().replace(' comments',''));
-                    
+                        if(isNaN(num_comments)){
+                            num_comments = 0;
+                        }
+                        
                         var subtext_text = subtext.html();
                         var right_index = -1,
                             left_index = -1;
@@ -96,7 +113,7 @@ var Scraper = function () {
                         for (var i in obj) {
                             sys.puts(i + '=' + obj[i]);
                         }
-                        updateData(obj);
+                        Post(obj);
                     }
 
                 });
@@ -104,56 +121,59 @@ var Scraper = function () {
         }
     }
 
-    // returns age in hours
-    function parseAge(age) {
-        if(age.indexOf('day') > -1) {
-            return parseInt(age.replace(' day','')) * 24;
-        } else if (age.indexOf('days') > -1) {
-            return parseInt(age.replace(' days','')) * 24;
-        } else if (age.indexOf('hour') > -1) {
-            return parseInt(age.replace(' hour',''));
-        } else if (age.indexOf('hours') > -1) {
-            return parseInt(age.replace(' hours',''));
-        } else {
-            return 0;
-        }
-    }
+    request({uri:'http://news.ycombinator.com'}, requestCallback);
 
-    function updateData(obj) {
-        data.push(obj);
-        if (data.length === 30) {
-            sys.puts('finished fetching!');
-            sys.puts('storing data');
-            for(var i = 0; i < data.length; i++) {
-                sys.puts('processing: ' + data[i].hn_id.toString() + ' ' + data[i].title_text);
-                var post_object = data[i];
-                Post.find({ hn_id: post_object.hn_id }).all(function(objs) {
-                    if(objs.length > 0) {
-                        sys.puts('exists: ' + objs[0].hn_id.toString() + ' ' + objs[0].title_text);
-                        sys.puts((post_object.rank - objs[0].rank).toString());
-                    } else {
-                        var p = new Post();
-                        console.log('new: ' + post_object.hn_id.toString() + ' ' + post_object.title_text);
-                        p.populate(post_object);
-                        p.save(function () {
-                            sys.puts('saved: ' + p.hn_id.toString() + ' ' + p.title_text);
-                        });
-                    }
-                });
-            }
-        }
-    }
-
-    function scrapeData() {
-        request({uri:'http://news.ycombinator.com'}, requestCallback);
-    }
-
-    this.init = function () {
-        scrapeData();
-    }
-    
     return this;
 }
 
-var scraper = new Scraper();
-scraper.init();
+function parseAge(age) {
+    if(age.indexOf('day') > -1) {
+        age = parseFloat(age.replace(' day','')) * 24;
+    } else if (age.indexOf('days') > -1) {
+        age = parseFloat(age.replace(' days','')) * 24;
+    } else if (age.indexOf('hour') > -1) {
+        age = parseFloat(age.replace(' hour',''));
+    } else if (age.indexOf('hours') > -1) {
+        age = parseFloat(age.replace(' hours',''));
+    } else {
+        age = 0;
+    }
+    //convert age in hours to ms
+    age = age * 60 * 60 * 1000;
+    var date = new Date();
+    date.setTime(date.getTime() - age);
+    return date;
+}
+
+function updatePostCount () {
+    num_posts_parsed++;
+    if(num_posts_parsed === 30) {
+        db.close();
+    }
+}
+
+function getCollection (callback) {
+    db.collection('posts', function (error, post_collection) {
+        if(!error) {
+            callback(post_collection);
+        }
+    });
+}
+
+
+
+var HOST = "localhost";
+var PORT = 27017;
+
+var request = require('request'),
+    jsdom = require('jsdom'),
+    sys = require('sys'),
+    DB = require('mongodb/db').Db,
+    Server= require('mongodb/connection').Server;
+
+var db = new DB('hackertrends', new Server(HOST, PORT, {auto_reconnect: false}, {}));
+db.open(function () {});
+
+var num_posts_parsed = 0;
+
+Scraper();
