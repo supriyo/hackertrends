@@ -1,4 +1,6 @@
-var Post = function (new_post_object) {
+(function () {
+    
+    function Post (new_post_object) {
     var target_obj = new_post_object;
     sys.puts('saving post: ' + target_obj.title_text);
 
@@ -36,29 +38,32 @@ var Post = function (new_post_object) {
                 
                 target_obj.updated_at = new Date(); // acts as a 'last seen on front page' tracker
                 
-                post_collection.insert(target_obj, function () {
-                    if(result) {
-                        if(changed) {
+                if(result) {
+                    if(changed) {
+                        post_collection.save(target_obj, function () {
                             sys.puts('updated: ' + target_obj.title_text);
-                        } else {
-                            sys.puts('same: ' + target_obj.title_text);
-                        }
+                            updatePostCount();
+                        });
                     } else {
-                        sys.puts('inserted: ' + target_obj.title_text);
+                        sys.puts('same: ' + target_obj.title_text);
+                        updatePostCount();
                     }
-                    updatePostCount();
-                });
+                } else {
+                    post_collection.insert(target_obj, function () {
+                        sys.puts('inserted: ' + target_obj.title_text);
+                        updatePostCount();
+                    });
+                }
             }
         }
         
         post_collection.findOne(q, q_callback);
     });
-    return this;
 }
 
 
 
-var Scraper = function () {
+function Scrape () {
 
     var window;
     var data = [];
@@ -122,8 +127,6 @@ var Scraper = function () {
     }
 
     request({uri:'http://news.ycombinator.com'}, requestCallback);
-
-    return this;
 }
 
 function parseAge(age) {
@@ -176,4 +179,6 @@ db.open(function () {});
 
 var num_posts_parsed = 0;
 
-Scraper();
+Scrape();
+
+})();
