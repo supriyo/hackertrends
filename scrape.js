@@ -13,7 +13,7 @@
                 var changed = false;
 
                 if (result) {
-                    if(target_obj.rank > result.rank) {
+                    if(target_obj.rank < result.rank) {
                         result.rank = target_obj.rank;
                         changed = true;
                         result.rank_max_time = new Date();
