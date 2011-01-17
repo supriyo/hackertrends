@@ -2,7 +2,7 @@
     
 function Post (new_post_object) {
     var target_obj = new_post_object;
-    sys.puts('saving post: ' + target_obj.title_text);
+    //sys.puts('saving post: ' + target_obj.title_text);
 
     getCollection( function (post_collection) {
 
@@ -41,16 +41,16 @@ function Post (new_post_object) {
                 if(result) {
                     if(changed) {
                         post_collection.save(target_obj, function () {
-                            sys.puts('updated: ' + target_obj.title_text);
+                            sys.puts('~~~: ' + target_obj.title_text);
                             updatePostCount();
                         });
                     } else {
-                        sys.puts('same: ' + target_obj.title_text);
+                        sys.puts('---: ' + target_obj.title_text);
                         updatePostCount();
                     }
                 } else {
                     post_collection.insert(target_obj, function () {
-                        sys.puts('inserted: ' + target_obj.title_text);
+                        sys.puts('+++: ' + target_obj.title_text);
                         updatePostCount();
                     });
                 }
@@ -64,12 +64,11 @@ function Post (new_post_object) {
 
 
 function Scrape () {
-
+    sys.puts('\n\nscraping...');
     var window;
     var data = [];
     
     var requestCallback = function (error, response, body) {
-        sys.puts(response.statusCode);
         if (!error && response.statusCode == 200) {
             window = jsdom.jsdom(body).createWindow();
             jsdom.jQueryify(window, 'jquery-1.4.2.min.js' , function() {
@@ -77,7 +76,7 @@ function Scrape () {
                     var self = window.$(this);
                     var title_a = self.children('a');
                     var title_text = title_a.text();
-                    sys.puts('\n\n');
+                    //sys.puts('\n\n');
                     if (title_text !== '' && title_text !== 'More') {
                         var title_domain = self.children('span.comhead').text().replace(' (','').replace(') ','');
                         var title_href = title_a.attr('href');
@@ -115,9 +114,9 @@ function Scrape () {
                             age: parseAge(age),
                             user: user
                         }
-                        for (var i in obj) {
-                            sys.puts(i + '=' + obj[i]);
-                        }
+                        // for (var i in obj) {
+                        //                             sys.puts(i + '=' + obj[i]);
+                        //                         }
                         Post(obj);
                     }
 
