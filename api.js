@@ -34,6 +34,27 @@ function getPosts (rank, callback) {
     });
 }
 
+function getAvgScoresVComments(callback){
+    db.collection('words', function(error, collection){
+        collection.find(function (error, cursor) {
+            cursor.toArray(function(error, words){
+                var points = [];
+                words.forEach(function(word){
+                    points.push([word.avg_score, word.avg_comments]);
+                    console.log(word);
+                })
+                callback(points);
+            });
+        });
+    });
+}
+
+app.get('/getAvgScoresVComments/', function (req, res) {
+    getAvgScoresVComments(function(points){
+        res.contentType('application/javascript');
+        res.send(points);
+    });
+});
 
 
 
@@ -53,8 +74,6 @@ app.get('/get-posts/', function ( req, res ) {
         res.send(posts);
     });
 });
-
-
 
 app.use(express.staticProvider(__dirname + '/static'));
 
