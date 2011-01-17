@@ -24,8 +24,8 @@ sys.puts('starting server on localhost:8000...');
 
 
 
-function getPosts (rank, callback) {
-    var q = { "rank": { "$lte": parseInt(rank) } };
+function getPosts (max_rank, callback) {
+    var q = { "rank": { "$lte": parseInt(max_rank) } };
     var sort = { "sort":["rank","-age"] }
     working_collection.find(q, sort, function (err, cursor) {
         cursor.toArray( function (err, posts) {

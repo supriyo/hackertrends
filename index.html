@@ -4,31 +4,34 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="description" content="" />
 
-        <title>hackertrends</title>
+        <title>hacker~trends</title>
 
         <link href="/css/screen.css" rel="stylesheet"  type="text/css" media="screen, projection"/>
         <link href='http://fonts.googleapis.com/css?family=Allerta' rel='stylesheet' type='text/css'>
     </head>
     <body>
         <div id="nav">
-            hackertrends
+            <a id="hacker-trends" href="/">hacker~trends</a>
             <a id="tab-post-graphs" class="tab selected" href="#post-graphs">Post Graphs</a>
             <a id="tab-post-table" class="tab" href="#post-table">Post Table</a>
             
-            <button id="refresh">REFRESH</button> <span id="post-count"></span>
+            <button id="refresh">REFRESH <span id="refresh-counter">0:00</span></button> <span id="post-count"></span>
         </div>
         <div id="post-graphs-box" class="box">
-            <h2>Count vs Rank</h2>
+            <h2>Count per Rank</h2>
             <div id="countvsrank" class="graph"></div>
         
-            <h2>Time In Top 30 vs Rank</h2>
+            <h2>Hours In Top 30 vs Rank</h2>
             <div id="top30vsrank" class="graph"></div>
 
             <h2># Comments vs Rank</h2>
             <div id="commentsvsrank" class="graph"></div>
             
-            <h2># Comments vs Time In Top 30</h2>
+            <h2># Comments vs Hours In Top 30</h2>
             <div id="commentsvstop30" class="graph"></div>
+            
+            <h2>Count per Hours To Max Rank</h2>
+            <div id="countvstimemaxrank" class="graph"></div>
         </div>
         <div id="post-table-box" class="box">
             <h2>Posts by Rank</h2>
@@ -57,7 +60,30 @@
                 updatePostTable();
             }
             
+            var time_since_refresh = -1;
+            var timer
+            function updateRefreshTimer () {
+                time_since_refresh++;
+                var sec = time_since_refresh % 60;
+                var min = Math.floor(time_since_refresh/60).toString();
+                var hour = Math.floor(time_since_refresh/3600).toString();
+                sec = ( (sec < 10) ? ':0' : ':' ) + sec.toString();
+                hour = ( (hour > 0) ? (hour.toString()+':') : '' );
+                $("#refresh-counter").text(hour + min + sec);
+                
+            }
             
+            function resetRefreshTimer () {
+                clearInterval(timer);
+                time_since_refresh = -1;
+                timer = setInterval("updateRefreshTimer();",1000);
+            }
+            
+            function jitterXY (point) {
+                point[0] = point[0] - 0.05 + (Math.random() * 0.1) ;
+                point[1] = point[1] - 0.05 + (Math.random() * 0.1) ;
+                return point;
+            }
             
             function updatePostGraphs () {
                 $("#post-graphs-box .graph").empty();
@@ -65,23 +91,33 @@
                 var top30vsrank = [];
                 var commentsvsrank = [];
                 var commentsvstop30 = [];
+                var countvstimemaxrank = [];
                 
-                //prime countvsrank
+                //prime counts
                 for(var i = 1; i <= 30; i++) { countvsrank.push([i,0]); }
+                for(var i = 0; i <= max_time_to_max_rank; i++) { countvstimemaxrank.push([i,0]); }
                 
                 for(var i = 0; i < data.length; i++) {
                     countvsrank[data[i].rank - 1][1] = countvsrank[data[i].rank - 1][1] + 1;
                     
-                    var time_in_top_30 = Math.floor(((new Date(data[i].updated_at)).getTime()-(new Date(data[i].added_at)).getTime())/(1000*60*60));
-                    top30vsrank.push([data[i].rank, time_in_top_30]);
+
+                    top30vsrank.push( jitterXY( [data[i].rank, data[i].time_in_top_30] ) );
                     
-                    commentsvsrank.push([data[i].rank, data[i].num_comments]);
+                    commentsvsrank.push( jitterXY( [data[i].rank, data[i].num_comments] ) );
                     
-                    commentsvstop30.push([time_in_top_30, data[i].num_comments]);
+                    commentsvstop30.push( jitterXY( [data[i].time_in_top_30, data[i].num_comments] ) );
+                    
+                    
+                    countvstimemaxrank[data[i].time_to_max_rank][1] = countvstimemaxrank[data[i].time_to_max_rank][1] + 1;
                 }
                 $.plot($("#countvsrank"), [countvsrank], {
                     series: {
                         bars: { show: true }
+                    },
+                    xaxis: {
+                        ticks: 30,
+                        min: 1,
+                        max: 31
                     },
                     grid: {
                         tickColor: "#eee"
@@ -93,8 +129,8 @@
                     },
                     xaxis: {
                         ticks: 30,
-                        min: 0,
-                        max: 30
+                        min: 1,
+                        max: 31
                     },
                     grid: {
                         tickColor: "#eee"
@@ -106,8 +142,8 @@
                     },
                     xaxis: {
                         ticks: 30,
-                        min: 0,
-                        max: 30
+                        min: 1,
+                        max: 31
                     },
                     grid: {
                         tickColor: "#eee"
@@ -116,6 +152,24 @@
                 $.plot($("#commentsvstop30"), [commentsvstop30], {
                     series: {
                         points: { show: true }
+                    },
+                    xaxis: {
+                        ticks: max_top_30,
+                        min: 0,
+                        max: max_top_30
+                    },
+                    grid: {
+                        tickColor: "#eee"
+                    }
+                });
+                $.plot($("#countvstimemaxrank"), [countvstimemaxrank], {
+                    series: {
+                        bars: { show: true }
+                    },
+                    xaxis: {
+                        ticks: max_time_to_max_rank,
+                        min: 0,
+                        max: max_time_to_max_rank
                     },
                     grid: {
                         tickColor: "#eee"
@@ -126,7 +180,7 @@
             function updatePostTable () {
                 $("#post-table-box table").empty();
                 
-                var append_html = '<tr><th class="number">#</th><th class="title">title</th><th class="rank">max rank</th><th class="rank">score</th><th class="rank">#&nbsp;comments</th><th class="age">age</th><th class="last-seen">last seen</th></tr>';
+                var append_html = '<tr><th class="number">#</th><th class="title">title</th><th class="rank">max rank</th><th class="rank">score</th><th class="rank">#&nbsp;comments</th><th class="age">age</th><th class="age">last seen</th><th class="age">time in top 30</th><th class="age">time to max rank</th></tr>';
                 
                 var current_rank = 0;
                 var odd_even = 'odd';
@@ -152,18 +206,38 @@
                     append_html += '<td class="rank">' + data[i].num_comments +'</td>';
                     append_html += '<td class="age">' + age +' <span>hours</span></td>';
                     append_html += '<td class="age">' + last_seen +' <span>hours</span></td>';
+                    append_html += '<td class="age">' + data[i].time_in_top_30 +' <span>hours</span></td>';
+                    append_html += '<td class="age">' + data[i].time_to_max_rank +' <span>hours</span></td>';
                     append_html += '</tr>';
                 }
                 $("#post-table-box table").append(append_html);
             }
+
+            var max_time_to_max_rank = 0;
+            var max_top_30 = 0;
             
             function refreshData () {
                 var q = { "rank": 30 }
                                 
                 $.getJSON(ht_url, q, function (response) {
                     if(response) {
+                        resetRefreshTimer();
                         data = response;
                         $("#post-count").text(response.length + ' posts');
+                        for(var i = 0; i < data.length; i++) {
+                            
+                            data[i].time_to_max_rank = Math.floor(((new Date(data[i].rank_max_time)).getTime()-(new Date(data[i].age)).getTime())/(1000*60*60));
+                            if(data[i].time_to_max_rank > max_time_to_max_rank) {
+                                max_time_to_max_rank = data[i].time_to_max_rank;
+                            }
+                            
+                            data[i].time_in_top_30 = Math.floor(((new Date(data[i].updated_at)).getTime()-(new Date(data[i].added_at)).getTime())/(1000*60*60));
+                            if (data[i].time_in_top_30 > max_top_30) {
+                                max_top_30 = data[i].time_in_top_30;
+                            }
+                            
+                        }
+                        
                         if(showing === "post-graphs") {
                             updatePostGraphs();
                         } else if (showing === "post-table") {

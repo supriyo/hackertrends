@@ -30,7 +30,7 @@ function Post (new_post_object) {
                     }
                     target_obj = result;
                 } else {
-                    target_obj.added_at = new Date(); // this plus age to get actual age
+                    target_obj.added_at = new Date();
                     target_obj.rank_max_time = new Date();
                     target_obj.comments_max_time = new Date();
                     target_obj.score_max_time = new Date();

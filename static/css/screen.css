@@ -23,11 +23,11 @@ tr.data-row td {
 }
 
 tr.data-row.odd {
-    background-color: #fff5f5;
+    background-color: #fff8f8;
 }
 
 tr.data-row.even {
-    background-color: #f5f5ff;
+    background-color: #f8f8ff;
 }
 
 tr.data-row:hover {
@@ -69,7 +69,7 @@ a:hover {
     text-decoration: underline;
 }
 
-#tables-box {
+#post-table-box {
     display: none;
 }
 
@@ -100,5 +100,27 @@ a:hover {
 
 #refresh, #post-count {
     float: right;
-    vertical-align: top;
+    padding: 8px;
+    vertical-align: middle;
+}
+
+#refresh {
+    background: #fff;
+    border: 2px solid #ccc;
+    margin-top: -3px;
+    cursor: pointer;
+}
+
+#refresh:hover {
+    background-color: #f8e7b3;
+    border: 2px solid #edc240;
+}
+
+#refresh-counter {
+    font-size: 12px;
+    color: #ccc;
+}
+
+#hacker-trends {
+    margin-right: 2px;
 }
