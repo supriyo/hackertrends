@@ -30,8 +30,13 @@
             <h2># Comments vs Hours In Top 30</h2>
             <div id="commentsvstop30" class="graph"></div>
             
+
             <h2>Count per Hours To Max Rank</h2>
             <div id="countvstimemaxrank" class="graph"></div>
+
+            <h2># Avg Scores vs Avg Comments for Words in Titles</h2>
+            <div id="scoresvscomments" class="graph"></div>
+
         </div>
         <div id="post-table-box" class="box">
             <h2>Posts by Rank</h2>
@@ -246,6 +251,25 @@
                     }
                 });
             }
+            
+            function getScatterData () {
+                $.getJSON('/getAvgScoresVComments/', {}, function (response){
+                    console.log(response)
+                    $.plot($("#scoresvscomments"), [response], {
+                        series: {
+                            points: { show: true },
+                        },
+                        xaxis: {
+                            ticks: 30,
+                            min: 0,
+                            max: 100
+                        },
+                        grid: {
+                            tickColor: "#eee"
+                        }
+                    });
+                });
+            }
 
             var data = [];
             var showing_graphs = true;
@@ -264,6 +288,7 @@
             
             $(document).ready( function () {
                 refreshData();
+                getScatterData();
                 $("a#tab-" + window.location.hash.substring(1)).click();
             });
             
