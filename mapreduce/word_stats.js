@@ -33,7 +33,7 @@ exports.word_stats = {
                 return {
                     count: total, 
                     avg_score: total_score/total,
-                    avg_comments: total_comments,
+                    avg_comments: total_comments/total,
                 };
             }).toString()
         }

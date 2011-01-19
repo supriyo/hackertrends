@@ -15,8 +15,8 @@
     });
     
     var mapReduce = require('../mapreduce/mapreduce').mapReduce,
-        command = require('../mapreduce/word_stats').word_stats, 
-        processResults = require('../mapreduce/avg_word_scores').processResults;
+        command = require('../mapreduce/word_stats').word_stats,
+        processResults = require('../mapreduce/word_stats').processResults;
     
     mapReduce(db, command, processResults, word_collection);
 })();
