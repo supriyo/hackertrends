@@ -1,7 +1,7 @@
-exports.mapReduce = function(db, command, processResults, resultCollection){
+exports.mapReduce = function(db, command){
     db.open(function(err, db){
         db.executeDbCommand(command, function(err, dbres){
-           processResults(db, dbres.documents[0].result, resultCollection)
+            db.close()
         });
     });   
 }
