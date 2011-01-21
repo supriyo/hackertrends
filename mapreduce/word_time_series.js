@@ -1,5 +1,5 @@
 (function () {
-    
+    console.log('mapreducing...');
     var HOST = "localhost";
     var PORT = 27017;
 
@@ -38,6 +38,7 @@
     db.open(function(err, db){
         db.executeDbCommand(command, function(err, dbres){
             db.close()
+            console.log('mapreduced!');
         });
     });
 })();
