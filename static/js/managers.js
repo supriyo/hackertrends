@@ -41,7 +41,6 @@ var DataManager = function() {
         avg_comments: 0
     }
     
-    
     var refreshing_posts = false,
         refreshing_words = false;
     

@@ -28,8 +28,45 @@ var API = function (host, port) {
             words_collection = collection;
         }
     });
+    
+    db.collection('word_dates', function(error, collection){
+        if(!error) {
+            words_dates = collection;
+        }
+    });
+    
+    app.get('/query-time-series/', function (req, res) {
+        res.contentType('application/javascript');
+        var q_list = req.query.q.match(/\w+/g);
+        var words = [];
+        var queries = [];
+        for(var i=0; i < q_list.length; i++){
+            words.push(q_list[i].toLowerCase());
+            queries.push({"_id.word":words[i]});
+        }
+        // if(words.length > 1)
+        //     queries.push({'_id.word': {"$in": words}})
+        
+        var sort = {"sort":["_id.date"]};
+        db.collection('word_dates', function (error, collection) {
+            var lines = [];
+            for(var i=0;i<queries.length;i++){
+                collection.find(queries[i], function (err, cursor){
+                    if(!err){
+                        cursor.toArray(function(error, word_dates){
+                            lines.push(word_dates);
+                            if(lines.length===queries.length){
+                                res.contentType('application/javascript');
+                                res.send(lines);
+                                db.close();     
+                            }
+                        });
+                    }
+                });                
+            }
 
-
+        })
+    });
 
     app.get('/get-posts/', function (req, res) {
         console.log(new Date() + ' - GET /get-posts/');
@@ -50,8 +87,6 @@ var API = function (host, port) {
         });
     }
 
-
-
     app.get('/get-words/', function (req, res) {
         console.log(new Date() + ' - GET /get-words/');
         getAvgScoresVComments(function (words) {
@@ -67,8 +102,6 @@ var API = function (host, port) {
             });
         });
     }
-
-
 
     app.get('/', function ( req, res ) {
         console.log(new Date() + ' - GET /');

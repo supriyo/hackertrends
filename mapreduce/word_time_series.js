@@ -15,7 +15,7 @@
         
         for(var i = 0; i < words.length; i++){
             emit({date: new Date(Date.parse(this.age)), 
-                    word: words[i]}, 
+                    word: words[i].toLowerCase()}, 
                     {
                         count: 1,
                         score: this.score,
