@@ -34,38 +34,38 @@ var API = function (host, port) {
             words_dates = collection;
         }
     });
-    
+
+
+
     app.get('/query-time-series/', function (req, res) {
-        res.contentType('application/javascript');
         var q_list = req.query.q.match(/\w+/g);
+        console.log(q_list);
         var words = [];
         var queries = [];
         for(var i=0; i < q_list.length; i++){
             words.push(q_list[i].toLowerCase());
             queries.push({"_id.word":words[i]});
+            console.log({"_id.word":words[i]});
         }
         // if(words.length > 1)
         //     queries.push({'_id.word': {"$in": words}})
         
         var sort = {"sort":["_id.date"]};
-        db.collection('word_dates', function (error, collection) {
-            var lines = [];
-            for(var i=0;i<queries.length;i++){
-                collection.find(queries[i], function (err, cursor){
-                    if(!err){
-                        cursor.toArray(function(error, word_dates){
-                            lines.push(word_dates);
-                            if(lines.length===queries.length){
-                                res.contentType('application/javascript');
-                                res.send(lines);
-                                db.close();     
-                            }
-                        });
-                    }
-                });                
-            }
+        var lines = [];
+        for(var i=0;i<queries.length;i++){
+            words_dates.find(queries[i], function (err, cursor){
+                if(!err){
+                    cursor.toArray(function(error, word_dates){
+                        lines.push(word_dates);
+                        if(lines.length===queries.length){
+                            res.contentType('application/javascript');
+                            res.send(lines);
+                        }
+                    });
+                }
+            });                
+        }
 
-        })
     });
 
     app.get('/get-posts/', function (req, res) {

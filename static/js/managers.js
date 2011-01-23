@@ -3,7 +3,7 @@ var urls = {
     get_posts: '/get-posts/'
 }
 
-var TabManager = function(tab_selector, box_selector) {
+var TabManager = function(tab_selector, box_selector, callbacks) {
     var boxes = $(box_selector);
     var tabs = $(tab_selector);
     tabs.each( function () {
@@ -14,15 +14,25 @@ var TabManager = function(tab_selector, box_selector) {
             self.addClass("selected");
             target = self.attr('name');
             $(box_selector+"[name=" + target +"]").show();
+            if(callbacks && callbacks[target]) {
+                callbacks[target]();
+            }
         });
     });
 
-    var hash = window.location.hash.substring(1);
-    if(hash) {
-        tabs.filter("[name=" + hash + "]").click();
-    } else {
-        tabs.first().click();
+    var refreshCurrentTab = function (sender, event_args) {
+        var hash = window.location.hash.substring(1);
+        if(hash) {
+            tabs.filter("[name=" + hash + "]").click();
+        } else {
+            tabs.first().click();
+        }
     }
+
+    data_refresh = new CustomEvent("refresh-data");
+    data_refresh.subscribe(refreshCurrentTab);
+    
+    refreshCurrentTab();
     return this;
 }
 
@@ -50,6 +60,7 @@ var DataManager = function() {
     }
     
     function refreshPostData() {
+        self.posts = [];
         refreshing_posts = true;
         $.ajax({
             url: urls.get_posts,
@@ -68,12 +79,14 @@ var DataManager = function() {
                     }
                 }
                 refreshing_posts = false;
+                data_refresh.fire(null, { message: '' });
             },
             dataType: "json"
          });
     }
     
     function refreshWordData() {
+        self.words = [];
         refreshing_words = true;
         $.ajax({
             url: urls.get_words,
@@ -112,15 +125,18 @@ var DataManager = function() {
     }
     
     this.sortPosts = function (sort) {
-        self.posts.sort(sort_functions[sort]);
+        self.posts.sort(sort_functions(sort));
     }
     this.sortWords = function (sort) {
-        self.words.sort(sort_functions[sort]);
+        self.words.sort(sort_functions(sort));
     }
     
-    var sort_functions = {
-        "avg_score": function (a,b) { return a.avg_score - b.avg_score; },
-        "-avg_score": function (a,b) { return b.avg_score - a.avg_score; }
+    function sort_functions(sort) {
+        if(sort.substring(0,1) === "-") {
+            return function (a,b) { return b[sort.substring(1)] - a[sort.substring(1)]; }
+        } else {
+            return function (a,b) { return a[sort] - b[sort]; }
+        }
     }
     
     return self;

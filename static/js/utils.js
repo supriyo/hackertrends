@@ -55,3 +55,28 @@ var utils = {
         return point;
     }
 }
+
+//from http://www.geekdaily.net/2008/04/02/javascript-defining-and-using-custom-events/
+var CustomEvent = function() {
+	//name of the event
+	this.eventName = arguments[0];
+	var mEventName = this.eventName;
+
+	//function to call on event fire
+	var eventAction = null;
+
+	//subscribe a function to the event
+	this.subscribe = function(fn) {
+		eventAction = fn;
+	};
+
+	//fire the event
+	this.fire = function(sender, eventArgs) {
+		if(eventAction != null) {
+			eventAction(sender, eventArgs);
+		}
+		else {
+			alert('There was no function subscribed to the ' + mEventName + ' event!');
+		}
+	};
+};
