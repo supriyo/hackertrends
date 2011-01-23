@@ -29,19 +29,20 @@ var init = function() {
                 var lines = [];
                 for(var i=0; i < response.length; i++){
                     var line = [];
-                    for(var j=0; j<response[i].length; j++){
-                        var date = response[i][j]["_id"]["date"];
-                        line.push([Date.parse(date), response[i][j]["value"]["count"]])
+                    for(var j=0; j<response[i].data.length; j++){
+                        var date = response[i].data[j]["_id"]["date"];
+                        line.push([Date.parse(date), response[i].data[j]["value"]["count"]])
                     }
-                    lines.push(line);
+                    lines.push({label: response[i].label, data: line});
                 }
                 $.plot($("#wordfrequency"), lines, {
-                    series:{
-                      points: {show:true},
-                      lines: {show:true}
+                    series: {
+                        points: {show:true},
+                        lines: {show:true}
                     },
                     legend: {
-                        show: true
+                        show: true,
+                        container: $("#legend")
                     },
                     xaxis: {
                         mode: "time",
@@ -52,12 +53,12 @@ var init = function() {
                             }
                             return ticks;
                         },
-                        timeformat: "%b %d, %y"
+                        minTickSize: [1, "day"]
                     },
                     yaxis: {
                         min: 0,
                         ticks: function(range) {
-                            var ticks = []
+                            var ticks = [];
                             for(var i=0; i< 2*range.max; i++){
                                 ticks.push(i);
                             }

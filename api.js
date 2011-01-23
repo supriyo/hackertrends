@@ -50,15 +50,18 @@ var API = function (host, port) {
         
         var sort = {"sort":["_id.date"]};
         var lines = [];
+        var n = 0;
         for(var i=0;i<queries.length;i++){
             words_dates.find(queries[i], sort, function (err, cursor){
                 if(!err){
                     cursor.toArray(function(error, word_dates){
-                        lines.push(word_dates);
+                        lines.push({label: q_list[n], data: word_dates});
+                        n++;
                         if(lines.length===queries.length){
                             res.contentType('application/javascript');
                             res.send(lines);
                         }
+                        console.log(lines)
                     });
                 }
             });                
