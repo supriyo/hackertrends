@@ -1,7 +1,6 @@
 
 
 var init = function() {
-    TabManager('.tab','.box');
     var timer = new Timer('#refresh-counter');
     data_manager = new DataManager();
     
@@ -9,13 +8,20 @@ var init = function() {
         timer.reset();
         data_manager.refreshData(function () {
             timer.start();
-            console.log(data_manager);
         });
     }
+
     
     $("#refresh").click(refresh);
     
-    $("#search").live('click', function () {
+    var tab_callbacks = {
+        'word-graph': function () {}, //refreshWordGraph
+        'post-graph': views.redrawPostGraphs,
+        'post-table': views.redrawPostTable
+    }
+    TabManager('.tab','.box', tab_callbacks);
+    
+    $("#search").click( function () {
         //TODO: Move this into a graph function
         var q = $("#q").val();
         if(q!=''){
@@ -29,7 +35,7 @@ var init = function() {
                     }
                     lines.push(line);
                 }
-                $.plot($("#time-series"), lines, {
+                $.plot($("#wordfrequency"), lines, {
                     series:{
                       points: {show:true},
                       lines: {show:true}
