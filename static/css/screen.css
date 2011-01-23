@@ -130,7 +130,7 @@ a:hover {
     cursor: pointer;
 }
 
-#refresh:hover {
+#refresh:hover, #search:hover {
     background-color: #f8e7b3;
     border: 2px solid #edc240;
 }
@@ -149,4 +149,24 @@ a:hover {
 
 #by-typeish > img {
     margin-bottom: -8px;
+}
+
+button#search, input#q {
+    background: #fff;
+    border: 2px solid #ccc;
+    font-size: 18px;
+}
+
+input#q {
+    height: 30px;
+    width: 200px;
+    font-size: 18px;
+    padding: 0;
+}
+
+button#search {
+    cursor: pointer;
+    height: 34px;
+    width: 80px;
+    display: inline-block;
 }

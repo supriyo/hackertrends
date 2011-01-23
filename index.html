@@ -28,7 +28,7 @@
             <h2>Word Frequency</h2>
             <div id="word-frequency-queries">
                 <input type="text" id="q"/>
-                <button id="search">Search:</button>
+                <button id="search">Search</button>
                 <ul id="query-list">
                 </ul>
                 <div id="legend"></div>
@@ -64,9 +64,67 @@
             <h2>About hacker~trends</h2>
             <p>hacker~trends blah blah blah</p>
             <h2>API</h2>
-            <p>You can access the raw data using the API.</p>
+            <p>You can access the raw data using the API, which is used by this interface, itself.</p>
+            <table>
+                <tr>
+                    <th>Method</th><th>URL</th><th>Params</th><th>Format</th></tr>
+                </tr>
+                <tr>
+                    <td colspan=4>List Posts</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td>/posts/</td>
+                    <td>-</td>
+                    <td>JSON</td>
+                </tr>
+                <tr>
+                    <td colspan=4>Description</td>
+                </tr>
+                <tr>
+                    <td colspan=4>Response...</td>
+                </tr>
+
+
+                <tr>
+                    <td colspan=4>Get Word Frequencies</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td>/word/</td>
+                    <td>word</td>
+                    <td>JSON</td>
+                </tr>
+                <tr>
+                    <td colspan=4>Description</td>
+                </tr>
+                <tr>
+                    <td colspan=4>Response</td>
+                </tr>
+
+
+                <tr>
+                    <td colspan=4>List Words</td>
+                </tr>
+                <tr>
+                    <td>GET</td><td>/words/</td><td>-</td><td>JSON</td>
+                </tr>
+                <tr>
+                    <td colspan=4>Description</td>
+                </tr>
+                <tr>
+                    <td colspan=4>Response...</td>
+                </tr>
+
+            </table>
             <h2>Technical</h2>
-            <p></p>
+            <p>
+                The backend uses <a href="http://www.mongodb.org/">MongoDB</a>, <a href="http://nodejs.org/">Node.js</a>, and <a href="http://expressjs.com/">Express</a>, on an <a href="http://www.ubuntu.com/">Ubuntu</a> <a href="http://www.linode.com/?r=5f045f057e3d1c0cc0d82ca1697690e03dc0dff9">Linode</a>.
+                The front-end uses <a href="http://jquery.com/">jQuery</a> and <a href="http://code.google.com/p/flot/">flot</a>. The typeface is Allerta, provided by the <a href="http://code.google.com/webfonts">Google Font Directory</a>.
+            </p>
+            <p>
+                The source is <a href="https://github.com/typeish/hackertrends">available on GitHub &raquo;</a>
+            </p>
             
         </div>
         
