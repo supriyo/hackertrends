@@ -45,13 +45,13 @@ var API = function (host, port) {
             queries.push({"_id.word":words[i]});
         }
         // if(words.length > 1)
-        //     queries.push({'_id.word': {"$in": words}})
+        //     queries.push({'_id.word': {"$in": words}});
         
         var sort = {"sort":["_id.date"]};
         db.collection('word_dates', function (error, collection) {
             var lines = [];
             for(var i=0;i<queries.length;i++){
-                collection.find(queries[i], function (err, cursor){
+                collection.find(queries[i], sort, function (err, cursor){
                     if(!err){
                         cursor.toArray(function(error, word_dates){
                             lines.push(word_dates);
@@ -64,8 +64,7 @@ var API = function (host, port) {
                     }
                 });                
             }
-
-        })
+        });
     });
 
     app.get('/get-posts/', function (req, res) {

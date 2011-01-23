@@ -13,9 +13,13 @@
         
         if(words == null) return;
         
+        var date = this.age;
         for(var i = 0; i < words.length; i++){
-            emit({date: new Date(Date.parse(this.age)), 
-                    word: words[i].toLowerCase()}, 
+            emit(
+                    {
+                        date: new Date(date.getFullYear(), date.getMonth(), date.getDate()), 
+                        word: words[i].toLowerCase()
+                    }, 
                     {
                         count: 1,
                         score: this.score,
@@ -51,8 +55,9 @@
         
     db.open(function(err, db){
         db.executeDbCommand(command, function(err, dbres){
-            db.close()
+            console.log(dbres);
             console.log('mapreduced!');
+            db.close();
         });
     });
 })();

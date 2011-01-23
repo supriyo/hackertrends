@@ -35,11 +35,19 @@ var init = function() {
                       lines: {show:true}
                     },
                     legend: {
-                        show: false
+                        show: true
                     },
                     xaxis: {
-                        mode: "time"
-                      },
+                        mode: "time",
+                        ticks: function (range){
+                            var ticks = [];
+                            for(var t=range.min; t<=range.max; t+=1000*60*60*24){
+                                ticks.push(t);
+                            }
+                            return ticks;
+                        },
+                        timeformat: "%b %d, %y"
+                    },
                     yaxis: {
                         min: 0,
                         ticks: function(range) {
@@ -55,8 +63,8 @@ var init = function() {
         }
     });
     
-    // $("#q").val("Apple");
-    // $("#search").click();
+    $("#q").val("Apple");
+    $("#search").click();
     refresh();
 }
 $(document).ready(init);
