@@ -37,8 +37,9 @@ var API = function (host, port) {
 
 
 
-    app.get('/query-time-series/', function (req, res) {
-        var q_list = req.query.q.match(/\w+/g);
+    app.get('/word/', function (req, res) {
+        console.log(new Date() + ' - GET /word/');
+        var q_list = req.query.word.match(/\w+/g);
         var words = [];
         var queries = [];
         for(var i=0; i < q_list.length; i++){
@@ -68,12 +69,12 @@ var API = function (host, port) {
         }
     });
 
-    app.get('/get-posts/', function (req, res) {
-        console.log(new Date() + ' - GET /get-posts/');
+    app.get('/posts/', function (req, res) {
+        console.log(new Date() + ' - GET /posts/');
         var query_rank = (req.query.rank) ? req.query.rank : 30;
         getPosts(query_rank, function (posts) {
             res.contentType('application/javascript');
-            res.send(posts);
+            res.send(checkJSONP(req, posts));
         });
     });
 
@@ -86,22 +87,24 @@ var API = function (host, port) {
             });
         });
     }
+    
 
-    app.get('/get-words/', function (req, res) {
-        console.log(new Date() + ' - GET /get-words/');
-        getAvgScoresVComments(function (words) {
+    app.get('/words/', function (req, res) {
+        console.log(new Date() + ' - GET /words/');
+        getWords(function (words) {
             res.contentType('application/javascript');
-            res.send(words);
+            res.send(checkJSONP(req, words));
         });
     });
 
-    function getAvgScoresVComments(callback){
+    function getWords (callback){
         words_collection.find(function (error, cursor) {
             cursor.toArray(function (error, words) {
                 callback(words);
             });
         });
     }
+
 
     app.get('/', function ( req, res ) {
         console.log(new Date() + ' - GET /');
@@ -110,11 +113,19 @@ var API = function (host, port) {
     });
 
 
+    function checkJSONP (req, data) {
+        var callback = req.query.callback;
+        if(callback && callback.match(/^\w+(\.\w+)*$/)) {
+            data = callback + '(' + JSON.stringify(data) + ')';
+        }
+        return data;
+    }
 
     this.start = function () {
         sys.puts('starting server on localhost:8000...');
         app.listen(8000);
-    }
+    }    
+    
     return this;
 }
 

@@ -71,89 +71,135 @@ var views = {
         for (var i in data_set) {
             $.plot($("#" + i), [data_set[i]], post_graphs[i]);
         }
+    },
+    redrawWordGraph: function () {
+        var q = $("#q").val();
+        if(q!=''){
+            $.getJSON(urls.get_word, {word:q}, function (response) {
+                var lines = [];
+                for(var i=0; i < response.length; i++){
+                    var line = [];
+                    for(var j=0; j<response[i].data.length; j++){
+                        var date = response[i].data[j]["_id"]["date"];
+                        line.push([Date.parse(date), response[i].data[j]["value"]["count"]])
+                    }
+                    lines.push({label: response[i].label, data: line});
+                }
+                $.plot($("#wordfrequency"), lines, {
+                    series:{
+                      points: {show:true},
+                      lines: {show:true}
+                    },
+                    legend: {
+                        show: true
+                    },
+                    xaxis: {
+                        mode: "time",
+                        ticks: function (range){
+                            var ticks = [];
+                            for(var t=range.min; t<=range.max; t+=1000*60*60*24){
+                                ticks.push(t);
+                            }
+                            return ticks;
+                        },
+                        timeformat: "%b %d, %y"
+                    },
+                    yaxis: {
+                        min: 0,
+                        ticks: function(range) {
+                            var ticks = []
+                            for(var i=0; i< 2*range.max; i++){
+                                ticks.push(i);
+                            }
+                            return ticks;
+                        }
+                    }
+                });
+            });
+        }
     }
 }
 function postGraphsOptions () {
-        return {
-            "countvsrank": {
-                series: {
-                    bars: { show: true }
-                },
-                yaxis: {
-                    min: 0,
-                },
-                xaxis: {
-                    ticks: 30,
-                    min: 1,
-                    max: 31
-                },
-                grid: {
-                    tickColor: "#eee"
-                }
+    return {
+        "countvsrank": {
+            series: {
+                bars: { show: true }
             },
-            "top30vsrank": {
-                series: {
-                    points: { show: true }
-                },
-                yaxis: {
-                    min: 0,
-                },
-                xaxis: {
-                    ticks: 30,
-                    min: 0,
-                    max: 31
-                },
-                grid: {
-                    tickColor: "#eee"
-                }
+            yaxis: {
+                min: 0,
             },
-            "commentsvsrank": {
-                series: {
-                    points: { show: true }
-                },
-                yaxis: {
-                    min: 0,
-                },
-                xaxis: {
-                    ticks: 30,
-                    min: 0,
-                    max: 31
-                },
-                grid: {
-                    tickColor: "#eee"
-                }
+            xaxis: {
+                ticks: 30,
+                min: 1,
+                max: 31
             },
-            "commentsvstop30": {
-                series: {
-                    points: { show: true }
-                },
-                yaxis: {
-                    min: 0,
-                },
-                xaxis: {
-                    ticks: data_manager.post_max.time_in_top_30,
-                    min: 0,
-                    max: data_manager.post_max.time_in_top_30
-                },
-                grid: {
-                    tickColor: "#eee"
-                }
+            grid: {
+                tickColor: "#eee"
+            }
+        },
+        "top30vsrank": {
+            series: {
+                points: { show: true }
             },
-            "countvstimemaxrank": {
-                series: {
-                    bars: { show: true }
-                },
-                yaxis: {
-                    min: 0,
-                },
-                xaxis: {
-                    ticks: data_manager.post_max.time_to_max_rank,
-                    min: 0,
-                    max: data_manager.post_max.time_to_max_rank
-                },
-                grid: {
-                    tickColor: "#eee"
-                }
+            yaxis: {
+                min: 0,
+            },
+            xaxis: {
+                ticks: 30,
+                min: 0,
+                max: 31
+            },
+            grid: {
+                tickColor: "#eee"
+            }
+        },
+        "commentsvsrank": {
+            series: {
+                points: { show: true }
+            },
+            yaxis: {
+                min: 0,
+            },
+            xaxis: {
+                ticks: 30,
+                min: 0,
+                max: 31
+            },
+            grid: {
+                tickColor: "#eee"
+            }
+        },
+        "commentsvstop30": {
+            series: {
+                points: { show: true }
+            },
+            yaxis: {
+                min: 0,
+            },
+            xaxis: {
+                ticks: data_manager.post_max.time_in_top_30,
+                min: 0,
+                max: data_manager.post_max.time_in_top_30
+            },
+            grid: {
+                tickColor: "#eee"
+            }
+        },
+        "countvstimemaxrank": {
+            series: {
+                bars: { show: true }
+            },
+            yaxis: {
+                min: 0,
+            },
+            xaxis: {
+                ticks: data_manager.post_max.time_to_max_rank,
+                min: 0,
+                max: data_manager.post_max.time_to_max_rank
+            },
+            grid: {
+                tickColor: "#eee"
             }
         }
     }
+}

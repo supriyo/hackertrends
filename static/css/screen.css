@@ -3,38 +3,38 @@ body {
     font-size: 14px;
 }
 
-table {
+table#post-table-table {
     border-collapse: collapse;
     margin: 10px auto;
     width: 100%;
 }
 
-th {
+table#post-table-table th {
     border-bottom: 1px solid;
     text-align: left;
 }
 
-tr.data-row {
+table#post-table-table tr.data-row {
     border: 2px solid #ccc;
 }
 
-tr.data-row td {
+table#post-table-table tr.data-row td {
     padding: 10px 20px;
 }
 
-tr.data-row.odd {
+table#post-table-table tr.data-row.odd {
     background-color: #fff6f6;
 }
 
-tr.data-row.even {
+table#post-table-table tr.data-row.even {
     background-color: #f6f6ff;
 }
 
-tr.data-row:hover {
+table#post-table-table tr.data-row:hover {
     background-color: #f8e7b3;
     border: 2px solid #edc240;
 }
-tr.data-row:hover td {
+table#post-table-table tr.data-row:hover td {
     border-top: 2px solid #edc240;
 }
 
@@ -140,6 +140,13 @@ a:hover {
 }
 
 #hacker-trends {
-    margin-right: 32px;
     margin-left: 6px;
+}
+
+#by-typeish {
+    margin-right: 32px;
+}
+
+#by-typeish > img {
+    margin-bottom: -8px;
 }

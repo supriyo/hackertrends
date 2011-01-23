@@ -1,6 +1,7 @@
 var urls = {
-    get_words: '/get-words/',
-    get_posts: '/get-posts/'
+    get_words: '/words/',
+    get_posts: '/posts/',
+    get_word: '/word/'
 }
 
 var TabManager = function(tab_selector, box_selector, callbacks) {
@@ -81,7 +82,7 @@ var DataManager = function() {
                 refreshing_posts = false;
                 data_refresh.fire(null, { message: '' });
             },
-            dataType: "json"
+            dataType: "jsonp"
          });
     }
     
