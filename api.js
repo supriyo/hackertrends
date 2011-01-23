@@ -37,6 +37,7 @@ var API = function (host, port) {
 
 
 
+
     app.get('/word/', function (req, res) {
         console.log(new Date() + ' - GET /word/');
         var q_list = req.query.word.match(/\w+/g);
@@ -111,6 +112,8 @@ var API = function (host, port) {
         res.contentType('text/html');
         res.sendfile('index.html');
     });
+
+
 
 
     function checkJSONP (req, data) {
